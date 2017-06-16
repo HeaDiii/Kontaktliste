@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
             emailText.setEnabled(value);
     }
 
+    // Lässt den Lade-Bildschirm verschwinden und blendet die Kontaktdaten ein. Wird aufgerufen sobald die JSON-Datei geparsed wurde.
     public void hideLoadingIndicator(){
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
         TextView loadingText = (TextView) findViewById(R.id.textView_loading);
@@ -142,13 +143,18 @@ public class MainActivity extends AppCompatActivity {
         scrollView.setVisibility(View.VISIBLE);
     }
 
+    // Befüllt die Seitenleiste mit Kontaktdaten.
     public void setupMenu(){
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         ListView listView = (ListView) findViewById(R.id.list_view);
 
         Menu menu = navigationView.getMenu();
+        // Löscht die Inhalte der Seitenleiste, falls dort standardmäßig etwas eingetragen sein sollte.
         menu.clear();
 
+        /*  For-Each Schleife geht alle vorhandenen Kontakte durch und erzeugt für jeden Kontakt einen Menüeintrag mit einem Icon
+            Zusätzlich wird jeder Eintrag mit einer Funktionalität versehen, falls dieser Eintrag angeklickt wird.
+            Das Anklicken eines Eintrags zeigt detaillierte Informationen zu dem Kontakt an und schließt die Leiste.  */
         int index = 0;
         for(Iterator<Contact> i = mMyContacts.iterator(); i.hasNext();){
             final Contact contact = i.next();
@@ -162,15 +168,11 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-
+        // Setzt Färbung der Icons in der Seitenleiste auf Null. Wird dieser Schritt nicht getan, bleiben die Icons komplett grau.
         navigationView.setItemIconTintList(null);
     }
 
+    // Befüllt die Inhalte der Textfelder in der detaillierten Ansicht mit Informationen des ausgewählten Kontakts.
     public boolean setupView(Contact contact){
         mDrawerLayout.closeDrawers();
 
@@ -210,6 +212,8 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Diese Klasse ist für den Download und das Parsen der JSON-Datei zuständig.
+    // Downloads müssen unter Android separat vom Main-Thread durchgeführt werden und finden asynchron statt.
     public class DownloadTask extends AsyncTask<String, Void, String> {
 
         @Override
@@ -291,9 +295,10 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+            /*
             for (int i = 0; i < mMyContacts.size(); i++) {
                 Log.i("Contact", mMyContacts.get(i).name);
-            }
+            } */
 
             ImageDownload imageDownload = new ImageDownload();
             imageDownload.execute();
@@ -301,6 +306,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    // Diese Klasse ist für den Download der Bilddateien der Kontakte zuständig.
+    // Nach durchführung der Methoden dieser Klasse wird der Ladeindikator ausgeblendet und die Anwendung kann genutzt werden. 
     public class ImageDownload extends AsyncTask<String, Void, Bitmap> {
 
         @Override
